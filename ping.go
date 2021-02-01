@@ -30,14 +30,12 @@ func main() {
 }
 
 func playerGen(role string, p chan play, max int) {
-	var startWork sync.WaitGroup
 	for i := 0; i < max; i++ {
 		p := player{
 			role: role + "_" + strconv.Itoa(i+1),
 			que:  p,
 		}
-		p.work(&startWork)
-		startWork.Wait()
+		p.work()
 	}
 }
 
@@ -84,12 +82,11 @@ func (p player) play(playing *sync.WaitGroup) {
 		time.Sleep(time.Duration(rand.Intn(1999)+1) * time.Millisecond)
 		fmt.Printf("%s ends\n", p.role)
 		playing.Done()
-		var start sync.WaitGroup
-		p.work(&start)
-		start.Wait()
+		p.work()
 	}(p, playing)
 }
-func (p player) work(start *sync.WaitGroup) {
+func (p player) work() {
+	var start sync.WaitGroup
 	start.Add(1)
 	go func(p player, start *sync.WaitGroup) {
 		// Start work for this player before starting another player ("Happpens Before").
@@ -107,4 +104,5 @@ func (p player) work(start *sync.WaitGroup) {
 		time.Sleep(time.Duration(rand.Intn(9999)+1) * time.Millisecond)
 		p.que <- p
 	}(p, start)
+	start.Wait()
 }
