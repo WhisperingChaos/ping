@@ -103,6 +103,6 @@ func (p player) work() {
 		// must work at least one millisecond but no more than 10 seconds.
 		time.Sleep(time.Duration(rand.Intn(9999)+1) * time.Millisecond)
 		p.que <- p
-	}(p, start)
+	}(p, &start)
 	start.Wait()
 }
